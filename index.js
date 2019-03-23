@@ -10,9 +10,15 @@ const sqlite = require("sqlite");
 const cf = require("./util/common.js");
 const accu = require("./util/accumulator.js");
 
+require("dnscache")({
+    enable: true,
+    ttl: 600,
+    cachesize: 50
+});
+
 const hostnames = ["cadence.gq", "cadence.moe"];
-const httpPort = 8080;
-const httpsPort = 8081;
+const httpPort = 3000;
+const httpsPort = 3001;
 const apiDir = "api";
 const globalHeaders = {"Access-Control-Allow-Origin": "*"};
 const hitUpdateMin = 10000;
@@ -48,43 +54,13 @@ if (encrypt) {
 
 const webHandlers = fs.readdirSync(apiDir).map(f => path.join(apiDir, f));
 const pageHandlers = [
-    {web: "/", local: "index.html"},
-    {web: "/pastes/list", local: "pastes/list.html"},
-    {web: "/pastes/submit", local: "pastes/submit.html"},
-    {web: "/pastes/[0-9]+", local: "pastes/paste.html"},
-    {web: "/images/submit", local: "images/submit.html"},
-    {web: "/pastes/[0-9]+/edit", local: "pastes/edit.html"},
-    {web: "/images/list", local: "images/list.html"},
-    {web: "/urls/submit", local: "urls/submit.html"},
-    {web: "/urls/list", local: "urls/list.html"},
-    {web: "/account", local: "account/details.html"},
-    {web: "/about/privacy", local: "about/privacy.html"},
-    {web: "/about/terms", local: "about/terms.html"},
-    {web: "/about/api", local: "about/apidocs.html"},
-    {web: "/about/contact", local: "about/contact.html"},
-    {web: "/about/site", local: "about/site.html"},
-    {web: "/examples", local: "examples/examples.html"},
-    {web: "/about/javascript", local: "about/javascript.html"},
-    {web: "/legacy/search", local: "legacy/search.html"},
-    {web: "/legacy/[\\w-]+", local: "legacy/video.html"},
-    {web: "/legacy/channel/[\\w-]+", local: "legacy/search.html"},
-    {web: "/cloudtube/subscriptions", local: "cloudtube/subscriptions.html"},
-    {web: "/cloudtube/settings", local: "cloudtube/settings.html"},
-    {web: "/misc/discord.io", local: "misc/discordio.html"},
-    {web: "/misc/godmaster", local: "misc/godmaster.html"},
-    {web: "/misc/ccc", local: "misc/ccc.html"},
-    {web: "/misc/archivesubmit", local: "/misc/archivesubmit.html"},
-    {web: "/egg", local: "/egg/browse.html"},
-    {web: "/egg/card/[0-9]+", local: "/egg/card.html"},
-    {web: "/egg/card/[0-9]+/fill", local: "/egg/fill.html"},
-    {web: "/egg/upload", local: "/egg/upload.html"}
 ];
 const cacheControl = [
     "ttf", "png", "jpg", "svg"
 ];
 
 // 2,373,711 hits collected before adding domain logging
-let hitManager = new accu.AccumulatorManager(sqlite, 10000);
+let hitManager = new accu.AccumulatorManager(sqlite, hitUpdateMin);
 new accu.AccumulatorControl("pathHit", hitManager, "Hits", "url", "hits");
 new accu.AccumulatorControl("domainHit", hitManager, "DomainHits", "domain", "hits");
 
