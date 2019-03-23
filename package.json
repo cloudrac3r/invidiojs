@@ -8,5 +8,13 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "dnscache": "github:cloudrac3r/dnscache",
+    "fast-html-parser": "^1.0.1",
+    "jsdom": "^14.0.0",
+    "mime": "^2.4.0",
+    "request-promise-native": "^1.0.7",
+    "sqlite": "^3.0.3"
+  }
 }
