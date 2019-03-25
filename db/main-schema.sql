@@ -1,0 +1,14 @@
+BEGIN TRANSACTION;
+DROP TABLE IF EXISTS "DomainHits";
+CREATE TABLE IF NOT EXISTS "DomainHits" (
+	"domain"	TEXT,
+	"hits"	INTEGER,
+	PRIMARY KEY("domain")
+);
+DROP TABLE IF EXISTS "Hits";
+CREATE TABLE IF NOT EXISTS "Hits" (
+	"url"	TEXT,
+	"hits"	INTEGER,
+	PRIMARY KEY("url")
+);
+COMMIT;
