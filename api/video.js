@@ -16,7 +16,7 @@ function extractRelatedQueryString(html) {
 	let indexStart = html.indexOf(startString)+startString.length;
 	let indexEnd = html.indexOf(`}`, indexStart);
 	let slice = html.slice(indexStart, indexEnd);
-	return JSON.parse(slice).split(",").map(f => qs.parse(decodeURIComponent(f)));
+	return JSON.parse(slice).split(",").map(f => qs.parse(f));
 }
 
 module.exports = ({extra}) => [
