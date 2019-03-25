@@ -92,7 +92,6 @@ module.exports = ({cf, extra}) => {
 					//relatedChannels
 				}, authorDetails);
 				let result = pretty ? JSON.stringify(fold, null, 2) : fold;
-				cf.log(fill[1]);
 				return [200, result];
 			}
 		},
@@ -101,7 +100,6 @@ module.exports = ({cf, extra}) => {
 				let pretty = !!params.pretty;
 				let v = +fill[0];
 				let html = await rp(`https://www.youtube.com/channel/${fill[1]}/videos?disable_polymer=1&flow=list`);
-				//console.log(Date.now());
 				let dom = fhp.parse(html);
 				let latestVideos = videosPageToLatest(dom);
 				let result = pretty ? JSON.stringify(latestVideos, null, 2) : latestVideos;
