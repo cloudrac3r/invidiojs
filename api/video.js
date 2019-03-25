@@ -1,5 +1,6 @@
 const rp = require("request-promise-native").defaults({forever: true});
 const fhp = require("fast-html-parser");
+const qs = require("qs");
 
 function extractDetailsFromHTML(html) {
 	let indexStart = html.indexOf("ytplayer.config = ")+18;
@@ -8,6 +9,14 @@ function extractDetailsFromHTML(html) {
 	let config = JSON.parse(slice);
 	let response = JSON.parse(config.args.player_response);
 	return {config, response};
+}
+
+function extractRelatedQueryString(html) {
+	let startString = `'RELATED_PLAYER_ARGS': {"rvs":`;
+	let indexStart = html.indexOf(startString)+startString.length;
+	let indexEnd = html.indexOf(`}`, indexStart);
+	let slice = html.slice(indexStart, indexEnd);
+	return JSON.parse(slice).split(",").map(f => qs.parse(decodeURIComponent(f)));
 }
 
 module.exports = ({extra}) => [
@@ -63,17 +72,29 @@ module.exports = ({extra}) => [
 					})
 				).sort((a, b) => (b.height - a.height)),
 				//captions
-				recommendedVideos: dom.querySelectorAll(".related-list-item").map(item => ({
-					videoId: item.childNodes[1].childNodes[1].attributes.href.match(/v=([\w-]+)/)[1],
-					title: item.childNodes[1].childNodes[1].attributes.title,
-					author: item.childNodes[1].childNodes[1].childNodes[5].text,
-					viewCountText: item.childNodes[1].childNodes[1].childNodes[7].text,
-					lengthSeconds: item.childNodes[3].childNodes[1].text.split(":").reduce((a, c, i, arr) => (a + (c*60**(arr.length-i-1))), 0),
-					lengthText: item.childNodes[3].childNodes[1].text,
-					videoThumbnails: extra.generateThumbnailURLs(details.response.videoDetails.videoId)
+				recommendedVideos: extractRelatedQueryString(html).map(item => ({
+					videoId: item.id,
+					title: item.title,
+					author: item.author,
+					viewCountText: item.short_view_count_text,
+					lengthSeconds: item.length_seconds,
+					videoThumbnails: extra.generateThumbnailURLs(item.id)
 				}))
+				/*dom.querySelectorAll(".related-list-item").map(item => {
+					if (!item.childNodes[1]) return; // is playlist? todo: test more
+					return {
+						videoId: item.childNodes[1].childNodes[1].attributes.href.match(/v=([\w-]+)/)[1],
+						title: item.childNodes[1].childNodes[1].attributes.title,
+						author: item.childNodes[1].childNodes[1].childNodes[5].text,
+						viewCount: +item.childNodes[1].childNodes[1].childNodes[7].childNodes[0].text.split(" ")[0].replace(/,/g, ""),
+						viewCountText: item.childNodes[1].childNodes[1].childNodes[7].childNodes[0].text,
+						lengthSeconds: extra.formattedTimeToSeconds(item.childNodes[3].childNodes[1].text),
+						lengthText: item.childNodes[3].childNodes[1].text,
+						videoThumbnails: extra.generateThumbnailURLs(details.response.videoDetails.videoId)
+					}
+				}).filter(v => v)*/
 			};
-			let result = pretty ? JSON.stringify(useFold ? fold : details, null, 2) : JSON.stringify(useFold ? fold : details);
+			let result = pretty ? JSON.stringify(useFold ? fold : details, null, 2) : (useFold ? fold : details);
 			return [200, result];
 		}
 	}
