@@ -51,6 +51,24 @@ module.exports = function ({db}) {
                 format.url = `https://i.ytimg.com/vi/${videoID}/${format.quality}.jpg`;
                 return format;
             });
+        },
+        formattedTimeToSeconds: function(time) {
+            return time.split(":").reduce((a, c, i, arr) => (a + (c*60**(arr.length-i-1))), 0)
+        },
+        relativeDateToTimestamp: function(date) {
+            if (date.toLowerCase().includes("today")) return Date.now()-12*60*60;
+            if (date.toLowerCase().includes("yesterday")) return Date.now()-36*60*60;
+            if (new Date(date).getTime()) return new Date(time).getTime();
+            let [number, multiplier] = date.split(" ");
+            number = +number;
+            //if (multiplier.includes("second")) number *= 1000;
+            if (multiplier.includes("minute")) number *= 60;
+            else if (multiplier.includes("hour")) number *= 60*60;
+            else if (multiplier.includes("day")) number *= 24*60*60;
+            else if (multiplier.includes("week")) number *= 7*24*60*60;
+            else if (multiplier.includes("month")) number *= 30*24*60*60;
+            else if (multiplier.includes("year")) number *= 365*24*60*60;
+            return Date.now()/1000-number;
         }
     };
     return extra;
