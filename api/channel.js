@@ -44,7 +44,8 @@ module.exports = ({cf, extra}) => {
 			route: "/api/v(\\d+)/channels/([\\w-]+)", methods: ["GET"], code: async ({fill, params}) => {
 				let pretty = !!params.pretty;
 				let v = +fill[0];
-				let html = await rp(`https://www.youtube.com/channel/${fill[1]}/videos?disable_polymer=1&flow=list`);
+				let mode = fill[1].match(/UC[\w-]{22}/) ? "channel" : "user";
+				let html = await rp(`https://www.youtube.com/${mode}/${fill[1]}/videos?disable_polymer=1&flow=list`);
 				let dom = fhp.parse(html);
 				let latestVideos = videosPageToLatest(dom);
 				let headerElement = dom.querySelector(".branded-page-header-title-link");
@@ -99,7 +100,8 @@ module.exports = ({cf, extra}) => {
 			route: "/api/v(\\d+)/channels/([\\w-]+)/videos", methods: ["GET"], code: async ({fill, params}) => {
 				let pretty = !!params.pretty;
 				let v = +fill[0];
-				let html = await rp(`https://www.youtube.com/channel/${fill[1]}/videos?disable_polymer=1&flow=list`);
+				let mode = fill[1].match(/UC[\w-]{22}/) ? "channel" : "user";
+				let html = await rp(`https://www.youtube.com/${mode}/${fill[1]}/videos?disable_polymer=1&flow=list`);
 				let dom = fhp.parse(html);
 				let latestVideos = videosPageToLatest(dom);
 				let result = pretty ? JSON.stringify(latestVideos, null, 2) : latestVideos;
