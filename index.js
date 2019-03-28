@@ -17,8 +17,8 @@ require("dnscache")({
 });
 
 const hostnames = ["cadence.gq", "cadence.moe"];
-const httpPort = 3000;
-const httpsPort = 3001;
+const httpPort = 4000;
+const httpsPort = 4001;
 const apiDir = "api";
 const globalHeaders = {"Access-Control-Allow-Origin": "*"};
 const hitUpdateMin = 10000;
@@ -280,8 +280,8 @@ function secureRedirect(req, res) {
     res.end();
 }
 if (encrypt) {
-    http.createServer(secureRedirect).listen(httpPort, "45.77.232.172");
-    //http.createServer(secureRedirect).listen(httpPort, "2001:19f0:5801:c62:5400:01ff:fe50:2b8f");
+    http.createServer(options, serverRequest).listen(httpPort, "45.77.232.172");
+    //http.createServer(options, serverRequest).listen(httpPort, "2001:19f0:5801:c62:5400:01ff:fe50:2b8f");
     https.createServer(options, serverRequest).listen(httpsPort, "45.77.232.172");
     //https.createServer(options, serverRequest).listen(httpsPort, "2001:19f0:5801:c62:5400:01ff:fe50:2b8f");
 } else {
