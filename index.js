@@ -289,3 +289,16 @@ if (encrypt) {
 }
 
 cf.log("Started server", "info");
+
+let stdin = process.stdin; // Use the terminal to run JS code
+stdin.on("data", async function(input) {
+    input = input.toString();
+    //log(`Running "${input}"`);
+    try { // Attempt to run input
+        let result = eval(input);
+        let output = await cf.stringifyAsync(result, false);
+        cf.log(output, "responseInfo");
+    } catch (e) { // Failed
+        cf.log("Error in eval.\n"+e.stack, "responseError");
+    }
+});

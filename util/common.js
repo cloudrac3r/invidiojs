@@ -1,3 +1,5 @@
+const util = require("util");
+
 Map.prototype.toObject = function() {
     let array = [...this];
     let object = {};
