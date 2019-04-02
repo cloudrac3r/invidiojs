@@ -97,11 +97,18 @@ module.exports = ({cf, extra}) => {
 			}
 		},
 		{
-			route: "/api/v(\\d+)/channels/([\\w-]+)/videos", methods: ["GET"], code: async ({fill, params}) => {
+			route: "/api/v(\\d+)/channels/([\\w-]+)/([\\w-]+)", methods: ["GET"], code: async ({fill, params}) => {
+				if (fill[1] == "videos" || fill[1] == "latest") {
+					var endpoint = fill[1], user = fill[2];
+				} else if (fill[2] == "videos" || fill[2] == "latest") {
+					var endpoint = fill[2], user = fill[1];
+				} else {
+					return [404, `Expected "videos" or "latest" after "/channels/".`];
+				}
 				let pretty = !!params.pretty;
 				let v = +fill[0];
-				let mode = fill[1].match(/UC[\w-]{22}/) ? "channel" : "user";
-				let html = await rp(`https://www.youtube.com/${mode}/${fill[1]}/videos?disable_polymer=1&flow=list`);
+				let mode = user.match(/UC[\w-]{22}/) ? "channel" : "user";
+				let html = await rp(`https://www.youtube.com/${mode}/${user}/videos?disable_polymer=1&flow=list`);
 				let dom = fhp.parse(html);
 				let latestVideos = videosPageToLatest(dom);
 				let result = pretty ? JSON.stringify(latestVideos, null, 2) : latestVideos;
